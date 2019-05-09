@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS users(id serial,manufacturer varchar(20), design varchar(20), style varchar(20), doors int, created_at timestamp default NULL, updated_at timestamp default NULL, constraint pk primary key(id))
