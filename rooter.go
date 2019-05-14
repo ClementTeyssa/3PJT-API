@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// InitializeRouter initialize a mux router
 func InitializeRouter() *mux.Router {
 	// StrictSlash is true => redirect /users/ to /users
 	router := mux.NewRouter().StrictSlash(true)

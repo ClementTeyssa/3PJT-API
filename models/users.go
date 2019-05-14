@@ -19,6 +19,24 @@ type User struct {
 
 type Users []User
 
+func UsersSize() int {
+	rows, err := config.GetDb().Query("SELECT COUNT(*) as count FROM users")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return count
+}
+
 func NewUser(user *User) {
 	if user == nil {
 		log.Fatal(user)

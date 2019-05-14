@@ -6,26 +6,37 @@ import (
 	"log"
 	"net/http"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/ClementTeyssa/3PJT-API/config"
 	"github.com/ClementTeyssa/3PJT-API/models"
 )
+
+func createTestUser() {
+	if models.UsersSize() <= 0 {
+		password := []byte("test")
+		hashedPasswordBytes, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey := &privateKey.PublicKey
+
+		// create test user
+		models.NewUser(&models.User{Email: "test@test.fr", Password: string(hashedPasswordBytes), PublicKeyN: publicKey.N.String()})
+	}
+}
 
 func main() {
 	config.DatabaseInit()
 	router := InitializeRouter()
 
-	// record := strconv.Itoa(block.Index) + block.Timestamp + block.Transaction.AccountFrom + block.Transaction.AccountTo + fmt.Sprintf("%.2f", block.Transaction.Amount) + block.PrevHash
-	// h := sha256.New()
-	// h.Write([]byte(record))
-	// hashed := h.Sum(nil)
+	// create a test user if it doesn't exist
+	createTestUser()
 
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		log.Fatal(err)
-	}
-	publicKey := &privateKey.PublicKey
-
-	// Populate database
-	models.NewUser(&models.User{Email: "test@test.fr", Password: "test", PublicKeyN: publicKey.N.String()})
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
