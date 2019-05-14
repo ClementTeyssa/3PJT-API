@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/ClementTeyssa/New_Test/models"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/ClementTeyssa/3PJT-API/models"
+	"github.com/gorilla/mux"
 )
 
 func UsersIndex(w http.ResponseWriter, r *http.Request) {

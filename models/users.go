@@ -1,19 +1,20 @@
 package models
 
 import (
-	"github.com/ClementTeyssa/New_Test/config"
 	"log"
 	"time"
+
+	"github.com/ClementTeyssa/3PJT-API/config"
 )
 
+//TODO: do comments for warning
 type User struct {
-	Id           int       `json:"id"`
-	Manufacturer string    `json:"manufacturer"`
-	Design       string    `json:"design"`
-	Style        string    `json:"style"`
-	Doors        uint8     `json:"doors"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID         int       `json:"id"`
+	Email      string    `json:"email"`
+	Password   string    `json:"password"`
+	PublicKeyN string    `json:"publickeyn"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type Users []User
@@ -24,8 +25,8 @@ func NewUser(user *User) {
 	}
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	err := config.GetDb().QueryRow("INSERT INTO users (manufacturer, design, style, doors, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id;", user.Manufacturer, user.Design, user.Style, user.Doors, user.CreatedAt, user.UpdatedAt).Scan(&user.Id)
-	
+	err := config.GetDb().QueryRow("INSERT INTO users (email, password, publickeyn, created_at, updated_at) VALUES ($1,$2,$3,$4,$5) RETURNING id;", user.Email, user.Password, user.PublicKeyN, user.CreatedAt, user.UpdatedAt).Scan(&user.ID)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +35,7 @@ func NewUser(user *User) {
 func FindUserById(id int) *User {
 	var user User
 	row := config.GetDb().QueryRow("SELECT * FROM users WHERE id = $1;", id)
-	err := row.Scan(&user.Id, &user.Manufacturer, &user.Design, &user.Style, &user.Doors, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.Email, &user.Password, &user.PublicKeyN, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		log.Fatal(err)
@@ -52,7 +53,7 @@ func AllUsers() *Users {
 	defer rows.Close()
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.Id, &user.Manufacturer, &user.Design, &user.Style, &user.Doors, &user.CreatedAt, &user.UpdatedAt)
+		err := rows.Scan(&user.ID, &user.Email, &user.Password, &user.PublicKeyN, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -63,11 +64,11 @@ func AllUsers() *Users {
 
 func UpdateUser(user *User) {
 	user.UpdatedAt = time.Now()
-	stmt, err := config.GetDb().Prepare("UPDATE users SET manufacturer=$1, design=$2, style=$3, doors=$4, updated_at=$5 WHERE id=$6;")
+	stmt, err := config.GetDb().Prepare("UPDATE users SET email=$1, password=$2, publickeyn=$3, updated_at=$4 WHERE id=$5;")
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = stmt.Exec(user.Manufacturer, user.Design, user.Style, user.Doors, user.UpdatedAt, user.Id)
+	_, err = stmt.Exec(user.Email, user.Password, user.PublicKeyN, user.UpdatedAt, user.ID)
 	if err != nil {
 		log.Fatal(err)
 	}

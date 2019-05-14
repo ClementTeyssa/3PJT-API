@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/ClementTeyssa/3PJT-API/controllers"
 	"github.com/gorilla/mux"
-	"github.com/ClementTeyssa/New_Test/controllers"
 )
 
 func InitializeRouter() *mux.Router {

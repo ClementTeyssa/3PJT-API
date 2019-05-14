@@ -2,8 +2,9 @@ package config
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
@@ -16,11 +17,12 @@ func DatabaseInit() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	createUsersTable()
 }
 
-	// Create Table users if not exists
+// Create Table users if not exists
 func createUsersTable() {
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS users(id serial,manufacturer varchar(20), design varchar(20), style varchar(20), doors int, created_at timestamp default NULL, updated_at timestamp default NULL, constraint pk primary key(id))")
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS users(id serial, email varchar(100), password varchar(255), publickeyn varchar(1000), created_at timestamp default NULL, updated_at timestamp default NULL, constraint pk primary key(id))")
 	if err != nil {
 		log.Fatal(err)
 	}
