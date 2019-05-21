@@ -1,4 +1,3 @@
-vendor/
 **/*.log
 **/*.sqlite
 .idea/
@@ -24,6 +23,5 @@ jhw.*
 node_modules/
 dist/
 generated/
-.vendor/
 3PJT-API
 

@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"log"
 	"net/http"
 
@@ -17,17 +18,23 @@ func createTestUser() {
 		password := []byte("test")
 		hashedPasswordBytes, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
-		publicKey := &privateKey.PublicKey
+
+		privateEncoded := x509.MarshalPKCS1PrivateKey(privateKey)
+
+		adress, err := bcrypt.GenerateFromPassword(privateEncoded, bcrypt.DefaultCost)
+		if err != nil {
+			log.Panic(err)
+		}
 
 		// create test user
-		models.NewUser(&models.User{Email: "test@test.fr", Password: string(hashedPasswordBytes), PublicKeyN: publicKey.N.String()})
+		models.NewUser(&models.User{Email: "test@test.fr", Password: string(hashedPasswordBytes), Adress: string(adress), PrivateKey: privateEncoded})
 	}
 }
 
@@ -38,5 +45,5 @@ func main() {
 	// create a test user if it doesn't exist
 	createTestUser()
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Panic(http.ListenAndServe(":8080", router))
 }
