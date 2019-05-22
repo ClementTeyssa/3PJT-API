@@ -47,5 +47,5 @@ func main() {
 	// create a test user if it doesn't exist
 	createTestUser()
 
-	log.Panic(http.ListenAndServe(":8080", router))
+	log.Panic(http.ListenAndServe(":8180", router))
 }
