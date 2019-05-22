@@ -20,3 +20,13 @@ services:
       - postgres
     ports:
       - "8180:8180"
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:3pjt-api.infux.fr
+      - traefik.port=8180
+      - traefik.docker.network=web
+    networks:
+      - web
+networks:
+  web:
+    external: true
