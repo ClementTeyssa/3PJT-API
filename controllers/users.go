@@ -19,6 +19,7 @@ import (
 )
 
 func UsersIndex(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(models.AllUsers())
@@ -33,13 +34,14 @@ func emailExist(email string) bool {
 }
 
 func errorHandler(w http.ResponseWriter, err string) {
-	log.Println("\n---------------ERROR---------------\n" + err + "\n---------------ERROR---------------\n")
+	log.Println("\n---------------ERROR---------------\n" + err + "\n---------------ERROR---------------")
 	var error helper.MyError
 	error.Error = err
 	json.NewEncoder(w).Encode(error)
 }
 
 func UsersCreate(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	body, err := ioutil.ReadAll(r.Body)
@@ -100,6 +102,7 @@ func UsersCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func UsersShow(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	vars := mux.Vars(r)
@@ -112,6 +115,7 @@ func UsersShow(w http.ResponseWriter, r *http.Request) {
 }
 
 func UsersUpdate(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	vars := mux.Vars(r)
@@ -130,6 +134,7 @@ func UsersUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 func UsersDelete(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	vars := mux.Vars(r)
