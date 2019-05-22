@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -25,57 +26,23 @@ func UsersIndex(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.AllUsers())
 }
 
-func emailExist(email string) bool {
-	if models.UserWithEmailSize(email) > 0 {
-		return true
-	} else {
-		return false
-	}
-}
+func UsersCreate(user models.User, w http.ResponseWriter) (models.User, error) {
 
-func errorHandler(w http.ResponseWriter, err string) {
-	log.Println("\n---------------ERROR---------------\n" + err + "\n---------------ERROR---------------")
-	var error helper.MyError
-	error.Error = err
-	json.NewEncoder(w).Encode(error)
-}
-
-func UsersCreate(w http.ResponseWriter, r *http.Request) {
-	helper.LogRequest(r)
-	w.Header().Set("Content-type", "application/json;charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	body, err := ioutil.ReadAll(r.Body)
-
-	if err != nil {
-		errorHandler(w, "ioutil.ReadAll(r.Body)")
-		return
-	}
-
-	var user models.User
-	err = json.Unmarshal(body, &user)
-	if err != nil {
-		errorHandler(w, "json.Unmarshal(body, &user)")
-		return
-	}
-
-	if emailExist(user.Email) {
-		errorHandler(w, "Email already exist !")
-		return
+	if helper.EmailExist(user.Email) {
+		return user, errors.New("Email already exist !")
 	}
 
 	password := []byte(user.Password)
 	hashedPasswordBytes, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
-		errorHandler(w, "bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)")
-		return
+		return user, errors.New("bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)")
 	}
 
 	user.Password = string(hashedPasswordBytes)
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		errorHandler(w, "rsa.GenerateKey(rand.Reader, 2048)")
-		return
+		return user, errors.New("rsa.GenerateKey(rand.Reader, 2048)")
 	}
 
 	privateEncoded := x509.MarshalPKCS1PrivateKey(privateKey)
@@ -83,8 +50,7 @@ func UsersCreate(w http.ResponseWriter, r *http.Request) {
 
 	adress, err := bcrypt.GenerateFromPassword(privateEncoded, bcrypt.DefaultCost)
 	if err != nil {
-		errorHandler(w, "bcrypt.GenerateFromPassword(privateEncoded, bcrypt.DefaultCost)")
-		return
+		return user, errors.New("bcrypt.GenerateFromPassword(privateEncoded, bcrypt.DefaultCost)")
 	}
 
 	user.Adress = string(adress)
@@ -93,12 +59,11 @@ func UsersCreate(w http.ResponseWriter, r *http.Request) {
 	errValidate := validate.Struct(user)
 
 	if errValidate != nil {
-		errorHandler(w, "validate.Struct(user)")
-		return
+		return user, errors.New("validate.Struct(user)")
 	}
 
 	models.NewUser(&user)
-	json.NewEncoder(w).Encode(user)
+	return user, nil
 }
 
 func UsersShow(w http.ResponseWriter, r *http.Request) {
