@@ -35,13 +35,15 @@ func createTestUser() {
 
 		// create test user
 		models.NewUser(&models.User{Email: "test@test.fr", Password: string(hashedPasswordBytes), Adress: string(adress), PrivateKey: privateEncoded})
+		log.Println("Test user created")
 	}
 }
 
 func main() {
 	config.DatabaseInit()
+	log.Println("Database initialised")
 	router := InitializeRouter()
-
+	log.Println("Rooter initialised")
 	// create a test user if it doesn't exist
 	createTestUser()
 

@@ -13,6 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	validator "gopkg.in/go-playground/validator.v9"
 
+	"github.com/ClementTeyssa/3PJT-API/helper"
 	"github.com/ClementTeyssa/3PJT-API/models"
 	"github.com/gorilla/mux"
 )
@@ -31,33 +32,48 @@ func emailExist(email string) bool {
 	}
 }
 
+func errorHandler(w http.ResponseWriter, err string) {
+	log.Println("\n---------------ERROR---------------\n" + err + "\n---------------ERROR---------------\n")
+	var error helper.MyError
+	error.Error = err
+	json.NewEncoder(w).Encode(error)
+}
+
 func UsersCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	body, err := ioutil.ReadAll(r.Body)
+
 	if err != nil {
-		log.Panic(err)
+		errorHandler(w, "ioutil.ReadAll(r.Body)")
 		return
 	}
 
 	var user models.User
 	err = json.Unmarshal(body, &user)
 	if err != nil {
-		log.Panic(err)
+		errorHandler(w, "json.Unmarshal(body, &user)")
+		return
 	}
 
 	if emailExist(user.Email) {
-		log.Panic("Email already exist !")
+		errorHandler(w, "Email already exist !")
+		return
 	}
 
 	password := []byte(user.Password)
 	hashedPasswordBytes, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+	if err != nil {
+		errorHandler(w, "bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)")
+		return
+	}
 
 	user.Password = string(hashedPasswordBytes)
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		log.Panic(err)
+		errorHandler(w, "rsa.GenerateKey(rand.Reader, 2048)")
+		return
 	}
 
 	privateEncoded := x509.MarshalPKCS1PrivateKey(privateKey)
@@ -65,7 +81,8 @@ func UsersCreate(w http.ResponseWriter, r *http.Request) {
 
 	adress, err := bcrypt.GenerateFromPassword(privateEncoded, bcrypt.DefaultCost)
 	if err != nil {
-		log.Panic(err)
+		errorHandler(w, "bcrypt.GenerateFromPassword(privateEncoded, bcrypt.DefaultCost)")
+		return
 	}
 
 	user.Adress = string(adress)
@@ -74,7 +91,8 @@ func UsersCreate(w http.ResponseWriter, r *http.Request) {
 	errValidate := validate.Struct(user)
 
 	if errValidate != nil {
-		log.Panic(errValidate)
+		errorHandler(w, "validate.Struct(user)")
+		return
 	}
 
 	models.NewUser(&user)
