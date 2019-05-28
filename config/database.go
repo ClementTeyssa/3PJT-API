@@ -25,7 +25,7 @@ func DatabaseInit() {
 
 // Create Table users if not exists
 func createUsersTable() {
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS users(id serial, email varchar(100), password varchar, adress varchar, privatekey bytea, created_at timestamp default NULL, updated_at timestamp default NULL, constraint pk_users primary key(id))")
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS users(id serial, email varchar(100), password varchar, adress varchar, privatekey bytea, solde float, created_at timestamp default NULL, updated_at timestamp default NULL, constraint pk_users primary key(id))")
 	if err != nil {
 		log.Panic(err)
 	}

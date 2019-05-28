@@ -18,7 +18,7 @@ func TransactionsIndex(w http.ResponseWriter, r *http.Request) {
 
 //TODO: create transaction
 func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
-
+	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -43,15 +43,21 @@ func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if(userFrom.)
+	//TODO: traiter les retours d'erreurs
+	if userFrom.Solde < transaction.Amount {
+		helper.ErrorHandlerHttpRespond(w, "Account from doesn't have enough tokens")
+		return
+	}
 
 	userTo := models.FindUserByAdress(transaction.AccountTo)
 	if userTo == nil {
 		helper.ErrorHandlerHttpRespond(w, "Account to doesn't exist")
 		return
 	}
-
 	models.NewTransaction(&transaction)
+
+	userFrom.Solde = userFrom.Solde - transaction.Amount
+	userTo.Solde = userTo.Solde + transaction.Amount
 
 	json.NewEncoder(w).Encode(transaction)
 }

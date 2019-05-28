@@ -14,6 +14,7 @@ type User struct {
 	Password   string    `json:"password" validate:"required"`
 	Adress     string    `json:"adress" validate:"required"`
 	PrivateKey []byte    `json:"privatekey" validate:"required"`
+	Solde      float32   `json:"solde"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
@@ -44,7 +45,7 @@ func NewUser(user *User) {
 	}
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	err := config.GetDb().QueryRow("INSERT INTO users (email, password, adress, privatekey, created_at, updated_at) VALUES ($1,$2,$3,$4,$5, $6) RETURNING id;", user.Email, user.Password, user.Adress, user.PrivateKey, user.CreatedAt, user.UpdatedAt).Scan(&user.ID)
+	err := config.GetDb().QueryRow("INSERT INTO users (email, password, adress, privatekey, solde, created_at, updated_at) VALUES ($1,$2,$3,$4,$5, $6, $7) RETURNING id;", user.Email, user.Password, user.Adress, user.PrivateKey, float32(0), user.CreatedAt, user.UpdatedAt).Scan(&user.ID)
 
 	if err != nil {
 		log.Panic(err)
@@ -54,7 +55,7 @@ func NewUser(user *User) {
 func FindUserById(id int) *User {
 	var user User
 	row := config.GetDb().QueryRow("SELECT * FROM users WHERE id = $1;", id)
-	err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.Solde, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		log.Panic(err)
@@ -66,7 +67,7 @@ func FindUserByEmail(email string) *User {
 	if UserWithEmailSize(email) > 0 {
 		var user User
 		row := config.GetDb().QueryRow("SELECT * FROM users WHERE email = $1;", email)
-		err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.CreatedAt, &user.UpdatedAt)
+		err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.Solde, &user.CreatedAt, &user.UpdatedAt)
 
 		if err != nil {
 			log.Panic(err)
@@ -83,7 +84,7 @@ func FindUserByAdress(adress string) *User {
 	if userWithSameAdress(adress) == 1 {
 		var user User
 		row := config.GetDb().QueryRow("SELECT * FROM users WHERE adress = $1;", adress)
-		err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.CreatedAt, &user.UpdatedAt)
+		err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.Solde, &user.CreatedAt, &user.UpdatedAt)
 
 		if err != nil {
 			log.Panic(err)
@@ -142,7 +143,7 @@ func AllUsers() *Users {
 	defer rows.Close()
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.CreatedAt, &user.UpdatedAt)
+		err := rows.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.Solde, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -153,11 +154,11 @@ func AllUsers() *Users {
 
 func UpdateUser(user *User) {
 	user.UpdatedAt = time.Now()
-	stmt, err := config.GetDb().Prepare("UPDATE users SET email=$1, password=$2, adress=$3, privatekey=$4, updated_at=$5 WHERE id=$6;")
+	stmt, err := config.GetDb().Prepare("UPDATE users SET email=$1, password=$2, adress=$3, privatekey=$4, solde=$5, updated_at=$6 WHERE id=$7;")
 	if err != nil {
 		log.Panic(err)
 	}
-	_, err = stmt.Exec(user.Email, user.Password, user.Adress, user.PrivateKey, user.UpdatedAt, user.ID)
+	_, err = stmt.Exec(user.Email, user.Password, user.Adress, user.PrivateKey, user.Solde, user.UpdatedAt, user.ID)
 	if err != nil {
 		log.Panic(err)
 	}
