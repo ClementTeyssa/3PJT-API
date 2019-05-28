@@ -98,15 +98,22 @@ func UsersUpdate(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func UsersDelete(w http.ResponseWriter, r *http.Request) {
-	helper.LogRequest(r)
-	w.Header().Set("Content-type", "application/json;charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	vars := mux.Vars(r)
-	// strconv.Atoi is shorthand for ParseInt
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		log.Panic(err)
-	}
-	err = models.DeleteUserById(id)
-}
+//TODO: verify user id ok with private key
+// func UsersDelete(w http.ResponseWriter, r *http.Request) {
+// 	helper.LogRequest(r)
+// 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+// 	w.WriteHeader(http.StatusOK)
+// 	vars := mux.Vars(r)
+// 	// strconv.Atoi is shorthand for ParseInt
+// 	id, err := strconv.Atoi(vars["id"])
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
+// 	private, err := strconv.Atoi(vars["private"])
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
+// 	user := models.FindUserById(id)
+
+// 	err = models.DeleteUserById(id)
+// }

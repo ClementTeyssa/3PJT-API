@@ -71,6 +71,7 @@ func FindUserByEmail(email string) *User {
 		if err != nil {
 			log.Panic(err)
 		}
+
 		return &user
 	} else {
 		log.Panic("Email doesn't exist")
@@ -78,8 +79,43 @@ func FindUserByEmail(email string) *User {
 	}
 }
 
+func FindUserByAdress(adress string) *User {
+	if userWithSameAdress(adress) == 1 {
+		var user User
+		row := config.GetDb().QueryRow("SELECT * FROM users WHERE adress = $1;", adress)
+		err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.CreatedAt, &user.UpdatedAt)
+
+		if err != nil {
+			log.Panic(err)
+		}
+
+		return &user
+	} else {
+		log.Panic("Adress doesn't exist")
+		return nil
+	}
+}
+
 func UserWithEmailSize(email string) int {
 	rows, err := config.GetDb().Query("SELECT COUNT(*) as count FROM users WHERE email = $1;", email)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
+	return count
+}
+
+func userWithSameAdress(adress string) int {
+	rows, err := config.GetDb().Query("SELECT COUNT(*) as count FROM users WHERE adress = $1;", adress)
 
 	if err != nil {
 		log.Panic(err)
