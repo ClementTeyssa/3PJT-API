@@ -10,6 +10,8 @@ services:
       - POSTGRES_DB=goapi
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - 3pjt-api
   app:
     image: golang:1.12.5-alpine3.9
     volumes:
@@ -20,3 +22,16 @@ services:
       - postgres
     ports:
       - "8281:8080"
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:3pjt-api.infux.fr
+      - traefik.port=8281
+      - traefik.docker.network=web
+    networks:
+      - 3pjt-api
+      - web
+networks:
+  web:
+    external: true
+  3pjt-api:
+    external: false
