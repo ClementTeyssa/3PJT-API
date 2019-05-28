@@ -30,6 +30,7 @@ services:
     networks:
       - 3pjt-api
       - web
+    container_name: 3pjt-api
 networks:
   web:
     external: true
