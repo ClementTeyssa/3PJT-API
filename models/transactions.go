@@ -41,6 +41,24 @@ func FindTransactionById(id int) *Transaction {
 	return &transaction
 }
 
+func CountTransactionsById(id int) int {
+	rows, err := config.GetDb().Query("SELECT COUNT(*) as count FROM transactions WHERE id = $1;", id)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
+	return count
+}
+
 func AllTransactions() *Transactions {
 	var transactions Transactions
 	rows, err := config.GetDb().Query("SELECT * FROM transactions")

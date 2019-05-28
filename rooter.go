@@ -19,5 +19,8 @@ func InitializeRouter() *mux.Router {
 
 	router.Methods("GET").Path("/transactions").Name("ListTransactions").HandlerFunc(controllers.TransactionsIndex)
 	router.Methods("POST").Path("/transactions").Name("CreateTransaction").HandlerFunc(controllers.TransactionsCreate)
+
+	router.Methods("GET").Path("/blocks").Name("ListBlocks").HandlerFunc(controllers.BlocksIndex)
+	router.Methods("POST").Path("/blocks").Name("CreateBlocks").HandlerFunc(controllers.BlocksCreate)
 	return router
 }

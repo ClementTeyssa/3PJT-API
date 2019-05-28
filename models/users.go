@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -80,20 +81,19 @@ func FindUserByEmail(email string) *User {
 	}
 }
 
-func FindUserByAdress(adress string) *User {
+func FindUserByAdress(adress string) (*User, error) {
 	if userWithSameAdress(adress) == 1 {
 		var user User
 		row := config.GetDb().QueryRow("SELECT * FROM users WHERE adress = $1;", adress)
 		err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Adress, &user.PrivateKey, &user.Solde, &user.CreatedAt, &user.UpdatedAt)
 
 		if err != nil {
-			log.Panic(err)
+			return nil, err
 		}
 
-		return &user
+		return &user, nil
 	} else {
-		log.Panic("Adress doesn't exist")
-		return nil
+		return nil, errors.New("Adress doesn't exist")
 	}
 }
 

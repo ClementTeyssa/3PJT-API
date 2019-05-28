@@ -16,7 +16,6 @@ func TransactionsIndex(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.AllTransactions())
 }
 
-//TODO: create transaction
 func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
@@ -31,15 +30,29 @@ func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 	var transaction models.Transaction
 	err = json.Unmarshal(body, &transaction)
 	if err != nil {
-		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &user)")
+		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &transaction)")
 		return
 	}
 
-	//TODO: do != verifs
+	type BodyPrivate struct {
+		Private []byte `json:"privatekey"`
+	}
 
-	userFrom := models.FindUserByAdress(transaction.AccountFrom)
-	if userFrom == nil {
-		helper.ErrorHandlerHttpRespond(w, "Account from doesn't exist")
+	var bodyPrivateKey BodyPrivate
+	err = json.Unmarshal(body, &bodyPrivateKey)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &bodyPrivateKey)")
+		return
+	}
+
+	userFrom, err := models.FindUserByAdress(transaction.AccountFrom)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, err.Error())
+		return
+	}
+
+	if string(userFrom.PrivateKey) != string(bodyPrivateKey.Private) {
+		helper.ErrorHandlerHttpRespond(w, "Private key doesn't match !")
 		return
 	}
 
@@ -49,15 +62,18 @@ func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userTo := models.FindUserByAdress(transaction.AccountTo)
-	if userTo == nil {
-		helper.ErrorHandlerHttpRespond(w, "Account to doesn't exist")
+	userTo, err := models.FindUserByAdress(transaction.AccountTo)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, err.Error())
 		return
 	}
 	models.NewTransaction(&transaction)
 
 	userFrom.Solde = userFrom.Solde - transaction.Amount
 	userTo.Solde = userTo.Solde + transaction.Amount
+
+	models.UpdateUser(userFrom)
+	models.UpdateUser(userTo)
 
 	json.NewEncoder(w).Encode(transaction)
 }
