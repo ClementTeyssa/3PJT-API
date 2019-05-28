@@ -20,11 +20,13 @@ services:
     command: go run main.go rooter.go
     links:
       - postgres
+    ports:
+      - "8281:8080"
     labels:
-      - traefik.enable=true
-      - traefik.frontend.rule=Host:3pjt-api.infux.fr
-      - traefik.port=80
-      - traefik.docker.network=web
+      - "traefik.docker.network=web"
+      - 'traefik.enable=true'
+      - "traefik.frontend.rule=Host:3pjt-api.infux.fr"
+      - "traefikbasic.port=8281"
     networks:
       - 3pjt-api
       - web
