@@ -3,24 +3,19 @@ package controllers
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/ClementTeyssa/3PJT-API/helper"
 	"github.com/ClementTeyssa/3PJT-API/models"
 )
 
-type BodyPrivate struct {
-	Private []byte `json:"privatekey"`
+type GoodResult struct {
+	Good string `json:"good"`
 }
 
-func TransactionsIndex(w http.ResponseWriter, r *http.Request) {
-	helper.LogRequest(r)
-	w.Header().Set("Content-type", "application/json;charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.AllTransactions())
-}
-
-func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
+func DoVerifications(w http.ResponseWriter, r *http.Request) {
 	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -56,24 +51,21 @@ func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: traiter les retours d'erreurs
 	if userFrom.Solde < transaction.Amount {
 		helper.ErrorHandlerHttpRespond(w, "Account from doesn't have enough tokens")
 		return
 	}
 
 	userTo, err := models.FindUserByAdress(transaction.AccountTo)
-	if err != nil {
+	if err != nil || userTo == nil {
 		helper.ErrorHandlerHttpRespond(w, err.Error())
 		return
 	}
-	models.NewTransaction(&transaction)
 
-	userFrom.Solde = userFrom.Solde - transaction.Amount
-	userTo.Solde = userTo.Solde + transaction.Amount
+	var goodResult GoodResult
+	goodResult.Good = "OK"
 
-	models.UpdateUser(userFrom)
-	models.UpdateUser(userTo)
+	log.Println("Transaction from " + transaction.AccountFrom + " ; to " + transaction.AccountTo + " ; for " + strconv.FormatFloat(float64(transaction.Amount), 'f', -1, 32) + " tokens")
 
-	json.NewEncoder(w).Encode(transaction)
+	json.NewEncoder(w).Encode(goodResult)
 }

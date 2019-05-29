@@ -11,7 +11,7 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks:
-      - 3pjt-api
+      - default
   app:
     image: golang:1.12.5-alpine3.9
     volumes:
@@ -27,12 +27,10 @@ services:
       - 'traefik.enable=true'
       - "traefik.frontend.rule=Host:3pjt-api.infux.fr"
       - "traefikbasic.port=8281"
-    networks:
-      - 3pjt-api
-      - web
     container_name: 3pjt-api
+    networks:
+      - web
+      - default
 networks:
   web:
     external: true
-  3pjt-api:
-    external: false
