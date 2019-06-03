@@ -19,6 +19,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type EmailPrivateKey struct {
+	Private []byte `json:"privatekey"`
+	Email   string `json:"email"`
+}
+
+type Solde struct {
+	Solde float32 `json:"solde"`
+}
+
 func UsersIndex(w http.ResponseWriter, r *http.Request) {
 	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
@@ -117,3 +126,38 @@ func UsersUpdate(w http.ResponseWriter, r *http.Request) {
 
 // 	err = models.DeleteUserById(id)
 // }
+
+func ShowSolde(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "ioutil.ReadAll(r.Body)")
+		return
+	}
+
+	var bodyEmailPrivateKey EmailPrivateKey
+	err = json.Unmarshal(body, &bodyEmailPrivateKey)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &bodyEmailPrivateKey)")
+		return
+	}
+
+	if models.UserWithEmailSize(bodyEmailPrivateKey.Email) != 1 {
+		helper.ErrorHandlerHttpRespond(w, "Email doesn't exist")
+		return
+	}
+
+	user := models.FindUserByEmail(bodyEmailPrivateKey.Email)
+	if string(user.PrivateKey) != string(bodyEmailPrivateKey.Private) {
+		helper.ErrorHandlerHttpRespond(w, "Private key doesn't match !")
+		return
+	}
+
+	var solde Solde
+	solde.Solde = user.Solde
+
+	json.NewEncoder(w).Encode(solde.Solde)
+}
