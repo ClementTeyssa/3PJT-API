@@ -35,6 +35,9 @@ func createTestUser() {
 
 		// create test user
 		models.NewUser(&models.User{Email: "test@test.fr", Password: string(hashedPasswordBytes), Adress: string(adress), PrivateKey: privateEncoded})
+		var user *models.User = models.FindUserByEmail("test@test.fr")
+		user.Solde = 10000000
+		models.UpdateUser(user)
 		log.Println("Test user created")
 	}
 }

@@ -7,10 +7,15 @@ import (
 
 	"github.com/ClementTeyssa/3PJT-API/helper"
 	"github.com/ClementTeyssa/3PJT-API/models"
+	"github.com/gorilla/mux"
 )
 
 type BodyPrivate struct {
 	Private []byte `json:"privatekey"`
+}
+
+type AdressTransac struct {
+	Adress string `json:"adress"`
 }
 
 func TransactionsIndex(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +40,11 @@ func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &transaction)
 	if err != nil {
 		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &transaction)")
+		return
+	}
+
+	if transaction.AccountFrom == transaction.AccountTo {
+		helper.ErrorHandlerHttpRespond(w, "You can't send a transaction to yourself !")
 		return
 	}
 
@@ -76,4 +86,37 @@ func TransactionsCreate(w http.ResponseWriter, r *http.Request) {
 	models.UpdateUser(userTo)
 
 	json.NewEncoder(w).Encode(transaction)
+}
+
+func TransactionsShow(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	vars := mux.Vars(r)
+	adress := vars["adress"]
+
+	// body, err := ioutil.ReadAll(r.Body)
+	// if err != nil {
+	// 	helper.ErrorHandlerHttpRespond(w, "ioutil.ReadAll(r.Body)")
+	// 	return
+	// }
+
+	// var adress AdressTransac
+	// err = json.Unmarshal(body, &adress)
+	// if err != nil {
+	// 	helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &adress)")
+	// 	return
+	// }
+
+	// if models.CountTransactionsByAdress(adress.Adress) <= 0 {
+	if models.CountTransactionsByAdress(adress) <= 0 {
+		helper.ErrorHandlerHttpRespond(w, "No transactions for this adress")
+		return
+	}
+
+	// var transactions *models.Transactions = models.FindTransactionsByAdress(adress.Adress)
+	var transactions *models.Transactions = models.FindTransactionsByAdress(adress)
+
+	json.NewEncoder(w).Encode(transactions)
 }

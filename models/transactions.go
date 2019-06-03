@@ -59,6 +59,42 @@ func CountTransactionsById(id int) int {
 	return count
 }
 
+func FindTransactionsByAdress(adress string) *Transactions {
+	var transactions Transactions
+	rows, err := config.GetDb().Query("SELECT * FROM transactions WHERE accountfrom = $1 OR accountto = $1", adress)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var transaction Transaction
+		err := rows.Scan(&transaction.ID, &transaction.AccountFrom, &transaction.AccountTo, &transaction.Amount, &transaction.CreatedAt, &transaction.UpdatedAt)
+		if err != nil {
+			log.Panic(err)
+		}
+		transactions = append(transactions, transaction)
+	}
+	return &transactions
+}
+
+func CountTransactionsByAdress(adress string) int {
+	rows, err := config.GetDb().Query("SELECT COUNT(*) as count FROM transactions WHERE accountfrom = $1 OR accountto = $1;", adress)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	count := 0
+	for rows.Next() {
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
+	return count
+}
+
 func AllTransactions() *Transactions {
 	var transactions Transactions
 	rows, err := config.GetDb().Query("SELECT * FROM transactions")

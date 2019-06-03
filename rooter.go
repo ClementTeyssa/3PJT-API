@@ -13,12 +13,13 @@ func InitializeRouter() *mux.Router {
 	router.Methods("GET").Path("/users").Name("ListUsers").HandlerFunc(controllers.UsersIndex)
 	router.Methods("POST").Path("/login").Name("Login").HandlerFunc(controllers.Login)
 	router.Methods("POST").Path("/register").Name("Register").HandlerFunc(controllers.Register)
-	router.Methods("GET").Path("/users/{id}").Name("Show").HandlerFunc(controllers.UsersShow)
-	router.Methods("PUT").Path("/users/{id}").Name("Update").HandlerFunc(controllers.UsersUpdate)
+	// router.Methods("GET").Path("/users/{id}").Name("Show").HandlerFunc(controllers.UsersShow)
+	// router.Methods("PUT").Path("/users/{id}").Name("Update").HandlerFunc(controllers.UsersUpdate)
 	// router.Methods("DELETE").Path("/users/{id}/{private}").Name("DELETE").HandlerFunc(controllers.UsersDelete)
 
 	router.Methods("GET").Path("/transactions").Name("ListTransactions").HandlerFunc(controllers.TransactionsIndex)
 	router.Methods("POST").Path("/transactions").Name("CreateTransaction").HandlerFunc(controllers.TransactionsCreate)
+	router.Methods("GET").Path("/transactions/{adress}").Name("ShowTransactions").HandlerFunc(controllers.TransactionsShow)
 
 	router.Methods("POST").Path("/transactions/verify").Name("VerifyTransaction").HandlerFunc(controllers.DoVerifications)
 
