@@ -28,7 +28,6 @@ func BlocksCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var block models.Block
-	// var transaction models.Transaction
 	err = json.Unmarshal(body, &block)
 	if err != nil {
 		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &block)")

@@ -18,8 +18,8 @@ func InitializeRouter() *mux.Router {
 	// router.Methods("DELETE").Path("/users/{id}/{private}").Name("DELETE").HandlerFunc(controllers.UsersDelete)
 
 	router.Methods("GET").Path("/transactions").Name("ListTransactions").HandlerFunc(controllers.TransactionsIndex)
+	router.Methods("POST").Path("/transactions/show").Name("ShowTransactions").HandlerFunc(controllers.TransactionsShow)
 	router.Methods("POST").Path("/transactions").Name("CreateTransaction").HandlerFunc(controllers.TransactionsCreate)
-	router.Methods("GET").Path("/transactions/{adress}").Name("ShowTransactions").HandlerFunc(controllers.TransactionsShow)
 
 	router.Methods("POST").Path("/solde").Name("ShowSolde").HandlerFunc(controllers.ShowSolde)
 

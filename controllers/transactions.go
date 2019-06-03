@@ -7,7 +7,6 @@ import (
 
 	"github.com/ClementTeyssa/3PJT-API/helper"
 	"github.com/ClementTeyssa/3PJT-API/models"
-	"github.com/gorilla/mux"
 )
 
 type BodyPrivate struct {
@@ -93,30 +92,25 @@ func TransactionsShow(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	vars := mux.Vars(r)
-	adress := vars["adress"]
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "ioutil.ReadAll(r.Body)")
+		return
+	}
 
-	// body, err := ioutil.ReadAll(r.Body)
-	// if err != nil {
-	// 	helper.ErrorHandlerHttpRespond(w, "ioutil.ReadAll(r.Body)")
-	// 	return
-	// }
+	var adress AdressTransac
+	err = json.Unmarshal(body, &adress)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &adress)")
+		return
+	}
 
-	// var adress AdressTransac
-	// err = json.Unmarshal(body, &adress)
-	// if err != nil {
-	// 	helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &adress)")
-	// 	return
-	// }
-
-	// if models.CountTransactionsByAdress(adress.Adress) <= 0 {
-	if models.CountTransactionsByAdress(adress) <= 0 {
+	if models.CountTransactionsByAdress(adress.Adress) <= 0 {
 		helper.ErrorHandlerHttpRespond(w, "No transactions for this adress")
 		return
 	}
 
-	// var transactions *models.Transactions = models.FindTransactionsByAdress(adress.Adress)
-	var transactions *models.Transactions = models.FindTransactionsByAdress(adress)
+	var transactions *models.Transactions = models.FindTransactionsByAdress(adress.Adress)
 
 	json.NewEncoder(w).Encode(transactions)
 }
