@@ -17,6 +17,10 @@ type AdressTransac struct {
 	Adress string `json:"adress"`
 }
 
+type ToReturnTransacs struct {
+	Transactions *models.Transactions `json:"transactions"`
+}
+
 func TransactionsIndex(w http.ResponseWriter, r *http.Request) {
 	helper.LogRequest(r)
 	w.Header().Set("Content-type", "application/json;charset=UTF-8")
@@ -110,7 +114,9 @@ func TransactionsShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var transactions *models.Transactions = models.FindTransactionsByAdress(adress.Adress)
+	// var transactions *models.Transactions = models.FindTransactionsByAdress(adress.Adress)
+	var toReturnTransacs ToReturnTransacs
+	toReturnTransacs.Transactions = models.FindTransactionsByAdress(adress.Adress)
 
-	json.NewEncoder(w).Encode(transactions)
+	json.NewEncoder(w).Encode(toReturnTransacs)
 }
