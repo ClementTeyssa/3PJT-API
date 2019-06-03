@@ -159,5 +159,5 @@ func ShowSolde(w http.ResponseWriter, r *http.Request) {
 	var solde Solde
 	solde.Solde = user.Solde
 
-	json.NewEncoder(w).Encode(solde.Solde)
+	json.NewEncoder(w).Encode(solde)
 }
