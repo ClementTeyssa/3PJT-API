@@ -22,6 +22,7 @@ import (
 type EmailPrivateKey struct {
 	Private []byte `json:"privatekey"`
 	Email   string `json:"email"`
+	Adress  string `json:"adress"`
 }
 
 type Solde struct {
@@ -153,6 +154,48 @@ func ShowSolde(w http.ResponseWriter, r *http.Request) {
 	user := models.FindUserByEmail(bodyEmailPrivateKey.Email)
 	if string(user.PrivateKey) != string(bodyEmailPrivateKey.Private) {
 		helper.ErrorHandlerHttpRespond(w, "Private key doesn't match !")
+		return
+	}
+
+	var solde Solde
+	solde.Solde = user.Solde
+
+	json.NewEncoder(w).Encode(solde)
+}
+
+func ShowSoldeToAPI2(w http.ResponseWriter, r *http.Request) {
+	helper.LogRequest(r)
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "ioutil.ReadAll(r.Body)")
+		return
+	}
+
+	var apiKey helper.APIKeyVerif
+	err = json.Unmarshal(body, &apiKey)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &ApiKey)")
+		return
+	}
+
+	if apiKey.ApiKey != helper.ApiKey {
+		helper.ErrorHandlerHttpRespond(w, "ApiKey is not valid !")
+		return
+	}
+
+	var adress EmailPrivateKey
+	err = json.Unmarshal(body, &adress)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, "json.Unmarshal(body, &adress)")
+		return
+	}
+
+	user, err := models.FindUserByAdress(adress.Adress)
+	if err != nil {
+		helper.ErrorHandlerHttpRespond(w, err.Error())
 		return
 	}
 

@@ -22,6 +22,7 @@ func InitializeRouter() *mux.Router {
 	router.Methods("POST").Path("/transactions").Name("CreateTransaction").HandlerFunc(controllers.TransactionsCreate)
 
 	router.Methods("POST").Path("/solde").Name("ShowSolde").HandlerFunc(controllers.ShowSolde)
+	router.Methods("POST").Path("/soldeapi").Name("ShowSoldeAPI").HandlerFunc(controllers.ShowSoldeToAPI2)
 
 	router.Methods("POST").Path("/transactions/verify").Name("VerifyTransaction").HandlerFunc(controllers.DoVerifications)
 
