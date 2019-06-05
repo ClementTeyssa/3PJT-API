@@ -201,6 +201,7 @@ func ShowSoldeToAPI2(w http.ResponseWriter, r *http.Request) {
 
 	var solde Solde
 	solde.Solde = user.Solde
+	println(user.Solde)
 
 	json.NewEncoder(w).Encode(solde)
 }
